@@ -1,8 +1,11 @@
-// Functions
+// Functions to add NDVI band to image ---
 var addNDVI2 = function(image) {
     var ndvi = image.normalizedDifference(['B8', 'B4']).rename('NDVI');
     return(image.addBands(ndvi));
 }
+// ---
+
+// Functions to add DATE band to image ---
 var addYear = function(image) {
   var doy = image.date().get('year');
   var doyBand = ee.Image.constant(doy).uint16().rename('year')
@@ -10,7 +13,6 @@ var addYear = function(image) {
 
   return image.addBands(doyBand);
 }
-
 var addMonth = function(image) {
   var doy = image.date().get('month');
   var doyBand = ee.Image.constant(doy).uint16().rename('month')
@@ -18,7 +20,6 @@ var addMonth = function(image) {
 
   return image.addBands(doyBand);
 }
-
 var addDay = function(image) {
   var doy = image.date().get('day');
   var doyBand = ee.Image.constant(doy).uint16().rename('day')
@@ -26,7 +27,6 @@ var addDay = function(image) {
 
   return image.addBands(doyBand);
 }
-
 var getId = function(obj) {
   var lat = obj.lat
   var lon = obj.lon
@@ -39,18 +39,28 @@ var getId = function(obj) {
   print('Gain: ', img.get('REFLECTANCE_MULT_BAND_1'))
   print('Offset: ', img.get('REFLECTANCE_ADD_BAND_1'))
 }
+var get_value = function(ogImg, geo, scale ) {
+    var meanDictionary = ogImg.reduceRegion({
+      reducer: ee.Reducer.mean(),
+      geometry: geo,
+      scale: scale,
+      maxPixels: 1e9
+    });
+    
+    return(meanDictionary)
+}
+// ---
 
-// Function to mask cloud from built-in quality band
+// Function to mask cloud from built-in quality band ---
 // information on cloud
 var maskClouds = function(image) {
   var QA60 = image.select(['QA60']);
   var clouds = QA60.bitwiseAnd(1<<10).or(QA60.bitwiseAnd(1<<11))// this gives us cloudy pixels
   return image.updateMask(clouds.not()); // remove the clouds from image
 };
+// ---
 
-/////////////////////////
-// Helper functions
-/////////////////////////
+// Helper functions ---
 var importImage = function(sDate, eDate, roi) {
   // Load the Sentinel scaled radiance image collection.
   //select l8
@@ -62,32 +72,26 @@ var importImage = function(sDate, eDate, roi) {
   // Return the big collection to main
   return(s2);
 }
+// ---
 
-var get_value = function(ogImg, geo, scale ) {
-  var meanDictionary = ogImg.reduceRegion({
-    reducer: ee.Reducer.mean(),
-    geometry: geo,
-    scale: scale,
-    maxPixels: 1e9
-  });
-  
-  return(meanDictionary)
-}
-
-// Dependencies
-var base = 2017
+// Dependencies ---
+//   Make sure the date format follows the exact structure
+//   As the format listed belowvar base = 2017
 var cap = 2020
 var start = '-06-01'
 var end = '-08-31'
 var sDate = base.toString()+start
 var eDate = base.toString()+end
 var imageCol = {}
+// THIS COLLECTION PATH NEEDS TO BE CHANGED TO WHERE 
+//   THE CURRENT ROI GEOMETRY FILE IS IN THE CODE EDITOR
+//   E.G. 'users/yourname/geometry'
 var roi = ee.FeatureCollection('users/tonywangs/Envelope_LCC')
 var region = ee.Geometry.Rectangle(-81.374-0.5, 72.327, -77.374+0.5, 70.327)
 var counter = 0
+// ---
 
-
-// Sentinel 2
+// Sentinel 2 ---
 // Fetch images from GEE and store them in their respective collections
 for (var i = base; i <= cap; i++) {
     sDate = i.toString()+start
@@ -131,9 +135,9 @@ for (var i = base; i <= cap; i++) {
         maxPixels: 1116247392, // value set only for exporting true-resolution LANDSAT scene
         crs: 'EPSG:2958'
       })
-      
       counter++
     }
 }
+// ---
 
 

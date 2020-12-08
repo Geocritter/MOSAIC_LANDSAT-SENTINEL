@@ -1,4 +1,4 @@
-// Functions
+// Functions to add NDVI band to image ---
 var addNDVI1 = function(image) {
     var ndvi = image.normalizedDifference(['B4', 'B3']).rename('NDVI');
     return(image.addBands(ndvi));
@@ -7,6 +7,9 @@ var addNDVI2 = function(image) {
     var ndvi = image.normalizedDifference(['B5', 'B4']).rename('NDVI');
     return(image.addBands(ndvi));
 }
+// ---
+
+// Functions to add DATE band to image ---
 var addYear = function(image) {
   var doy = image.date().get('year');
   var doyBand = ee.Image.constant(doy).uint16().rename('year')
@@ -14,8 +17,6 @@ var addYear = function(image) {
 
   return image.addBands(doyBand);
 }
-
-// Functions for calculating date-bands for images
 var addMonth = function(image) {
   var doy = image.date().get('month');
   var doyBand = ee.Image.constant(doy).uint16().rename('month')
@@ -52,8 +53,9 @@ var get_value = function(ogImg, geo, scale ) {
     
     return(meanDictionary)
 }
+// ---
 
-// Functions for pre-processing images before mosaicking starts
+// Function to mask cloud from built-in quality band ---
 var getQABits = function(image, start, end, newName) {
     // Compute the bits we need to extract.
     var pattern = 0;
@@ -88,11 +90,10 @@ var maskClouds = function(image) {
   image = image.updateMask(cs);
   return image.updateMask(c);
 };
+// ---
 
 
-/////////////////////////
-// Helper functions
-/////////////////////////
+// Helper functions ---
 var importImage = function(sDate, eDate, roi) {
   // Load the Landsat scaled radiance image collection.
   //select l5
@@ -120,8 +121,9 @@ var importImage = function(sDate, eDate, roi) {
   // Return the big collection to main
   return(lmix);
 }
+// ---
 
-// Dependencies
+// Dependencies ---
 //   Make sure the date format follows the exact structure
 //   As the format listed below
 var base = 2000
@@ -136,8 +138,9 @@ var imageCol = {}
 //   E.G. 'users/yourname/geometry'
 var roi = ee.FeatureCollection('users/tonywangs/Envelope_LCC')
 var counter = 0
+// ---
 
-// landsat 5
+// landsat 5 ---
 // Fetch images from GEE and store them in their respective collections
 for (var i = base; i <= cap; i++) {
     sDate = i.toString()+start
@@ -192,18 +195,12 @@ for (var i = base; i <= cap; i++) {
         maxPixels: 1116247392, // value set only for exporting true-resolution LANDSAT scene
         crs: 'EPSG:2958'
       })
-      /*
-      Export.table.toDrive({
-        collection: imageCol[i],
-        description:  i.toString()+"_META",
-        fileFormat: 'CSV'
-      })
-      */
       counter++
     }
 }
+// ---
 
-// landsat 7 
+// landsat 7 ---
 // Fetch images from GEE and store them in their respective collections
 for (var i = base; i <= cap; i++) {
     sDate = i.toString()+start
@@ -258,18 +255,12 @@ for (var i = base; i <= cap; i++) {
         maxPixels: 1116247392, // value set only for exporting true-resolution LANDSAT scene
         crs: 'EPSG:2958'
       })
-      /*
-      Export.table.toDrive({
-        collection: imageCol[i],
-        description:  i.toString()+"_META",
-        fileFormat: 'CSV'
-      })
-      */
       counter++
     }
 }
+// ---
 
-// landsat 8 
+// landsat 8 ---
 // Fetch images from GEE and store them in their respective collections
 for (var i = base; i <= cap; i++) {
     sDate = i.toString()+start
@@ -324,13 +315,7 @@ for (var i = base; i <= cap; i++) {
         maxPixels: 1116247392, // value set only for exporting true-resolution LANDSAT scene
         crs: 'EPSG:2958'
       })
-      /*
-      Export.table.toDrive({
-        collection: imageCol[i],
-        description:  i.toString()+"_META",
-        fileFormat: 'CSV'
-      })
-      */
       counter++
     }
 }
+// ---
