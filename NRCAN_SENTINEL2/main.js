@@ -76,7 +76,8 @@ var importImage = function(sDate, eDate, roi) {
 
 // Dependencies ---
 //   Make sure the date format follows the exact structure
-//   As the format listed belowvar base = 2017
+//   As the format listed below
+var base = 2017
 var cap = 2020
 var start = '-06-01'
 var end = '-08-31'
